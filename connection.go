@@ -12,6 +12,15 @@ import (
 var config *Config
 var client *mongo.Client
 var db *mongo.Database
+var ctxTimeout = 10 * time.Second
+
+func SetMongoDatabase(database *mongo.Database) {
+	db = database
+}
+
+func SetCtxTimeout(timeout time.Duration) {
+	ctxTimeout = timeout
+}
 
 // Config struct contain extra config of mgm package.
 type Config struct {
@@ -33,7 +42,7 @@ func Ctx() context.Context {
 }
 
 func ctx() context.Context {
-	return NewCtx(config.CtxTimeout)
+	return NewCtx(ctxTimeout)
 }
 
 // NewClient return new mongodb client.
@@ -74,7 +83,7 @@ func SetDefaultConfig(conf *Config, dbName string, opts ...*options.ClientOption
 	}
 
 	config = conf
-
+	ctxTimeout = conf.CtxTimeout
 	if client, err = NewClient(opts...); err != nil {
 		return err
 	}
